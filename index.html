@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Retirement Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Retirement Calculator</h1>
+      <p class="subtitle">Find out how much you need to save — and if you're on track.</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Your Details</span>
+        <label class="toggle-label">
+          <span class="toggle-text">Advanced</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="advancedToggle" />
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-grid">
+        <!-- Simple inputs -->
+        <div class="field">
+          <label for="currentAge">Current Age</label>
+          <input type="number" id="currentAge" min="18" max="80" placeholder="32" />
+        </div>
+        <div class="field">
+          <label for="retirementAge">Retirement Age</label>
+          <input type="number" id="retirementAge" min="40" max="90" placeholder="65" />
+        </div>
+        <div class="field">
+          <label for="annualIncome">Annual Income</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="annualIncome" min="0" placeholder="95000" /></div>
+        </div>
+        <div class="field">
+          <label for="currentSavings">Current Savings</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="currentSavings" min="0" placeholder="42000" /></div>
+        </div>
+        <div class="field">
+          <label for="monthlySavings">Monthly Contribution</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="monthlySavings" min="0" placeholder="1200" /></div>
+        </div>
+
+        <!-- Advanced inputs (hidden by default) -->
+        <div class="field advanced-field">
+          <label for="returnRate">Annual Return Rate</label>
+          <div class="input-suffix"><input type="number" id="returnRate" min="0" max="20" step="0.1" value="7" /><span>%</span></div>
+        </div>
+        <div class="field advanced-field">
+          <label for="inflationRate">Inflation Rate</label>
+          <div class="input-suffix"><input type="number" id="inflationRate" min="0" max="15" step="0.1" value="3" /><span>%</span></div>
+        </div>
+        <div class="field advanced-field">
+          <label for="socialSecurity">Social Security (monthly)</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="socialSecurity" min="0" placeholder="0" value="0" /></div>
+        </div>
+        <div class="field advanced-field">
+          <label for="employerMatch">Employer 401k Match</label>
+          <div class="input-suffix"><input type="number" id="employerMatch" min="0" max="100" step="0.5" value="0" /><span>%</span></div>
+        </div>
+        <div class="field advanced-field">
+          <label for="withdrawalRate">Withdrawal Rate</label>
+          <div class="input-suffix"><input type="number" id="withdrawalRate" min="1" max="10" step="0.1" value="4" /><span>%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results" hidden>
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-label">Retirement Target</div>
+          <div class="stat-value" id="statTarget">—</div>
+          <div class="stat-sub">needed at retirement</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Projected Savings</div>
+          <div class="stat-value" id="statProjected">—</div>
+          <div class="stat-sub">at current rate</div>
+        </div>
+        <div class="stat-card" id="gapCard">
+          <div class="stat-label">Monthly Gap</div>
+          <div class="stat-value" id="statGap">—</div>
+          <div class="stat-sub" id="gapSub">more needed/month</div>
+        </div>
+      </div>
+
+      <div class="readiness-section">
+        <div class="readiness-header">
+          <span>Retirement Readiness</span>
+          <span id="readinessPct">—</span>
+        </div>
+        <div class="readiness-bar-track">
+          <div class="readiness-bar-fill" id="readinessBar"></div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <canvas id="projectionChart"></canvas>
+      </div>
+    </div>
+
+    <footer>
+      <p>This is a planning tool, not financial advice. Consult a licensed financial advisor for personalized guidance.</p>
+    </footer>
+  </div>
+
+  <script src="calculator.js"></script>
+</body>
+</html>
