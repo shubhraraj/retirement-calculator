@@ -28,11 +28,7 @@ function calcReadiness(projected, target) {
 
 function formatCurrency(n) {
   if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) {
-    const k = Math.round(n / 1e3);
-    if (k >= 1000) return '$' + (n / 1e6).toFixed(2) + 'M';
-    return '$' + k + 'K';
-  }
+  if (n >= 1e3) return '$' + Math.round(n / 1e3) + 'K';
   return '$' + Math.round(n).toLocaleString();
 }
 
@@ -45,7 +41,7 @@ function buildChartData(currentAge, retirementAge, currentSavings, monthlyContri
     const y = age - currentAge;
     labels.push(age);
     projected.push(Math.round(futureValue(currentSavings, monthlyContrib, annualRate, y)));
-    targetLine.push(target);
+    targetLine.push(Math.round((target / years) * y));
   }
   return { labels, projected, targetLine };
 }
@@ -139,8 +135,6 @@ function update() {
   const currentSavings = getVal('currentSavings');
   const monthlySavings = getVal('monthlySavings');
   const returnRate    = getVal('returnRate') || 7;
-  const inflationRate = getVal('inflationRate');
-  const realRate      = Math.max(returnRate - inflationRate, 0);
   const employerMatch = getVal('employerMatch');
   const withdrawalRate = getVal('withdrawalRate') || 4;
   const socialSecurity = getVal('socialSecurity');
@@ -155,8 +149,8 @@ function update() {
   const ssCorpus = ssAnnual / (withdrawalRate / 100);
   const adjustedTarget = Math.max(target - ssCorpus, 0);
 
-  const projected = futureValue(currentSavings, effectiveMonthly, realRate, years);
-  const gap = calcMonthlyGap(adjustedTarget, projected, realRate, years);
+  const projected = futureValue(currentSavings, effectiveMonthly, returnRate, years);
+  const gap = calcMonthlyGap(adjustedTarget, projected, returnRate, years);
   const readiness = calcReadiness(projected, adjustedTarget);
 
   // Update stat cards
@@ -187,7 +181,7 @@ function update() {
   document.getElementById('results').removeAttribute('hidden');
 
   // Chart
-  const chartData = buildChartData(currentAge, retirementAge, currentSavings, effectiveMonthly, realRate, adjustedTarget);
+  const chartData = buildChartData(currentAge, retirementAge, currentSavings, effectiveMonthly, returnRate, adjustedTarget);
   renderChart(chartData);
 }
 
