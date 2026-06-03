@@ -280,9 +280,84 @@ footer {
   line-height: 1.6;
 }
 
+/* Location section */
+.section-divider {
+  border: none;
+  border-top: 1.5px dashed #e5e5e5;
+  margin: 24px 0 16px;
+}
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+.location-row {
+  display: flex;
+  gap: 16px;
+}
+.location-row .field { flex: 1; }
+.field select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #111;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.field select:focus { border-color: #4f46e5; }
+#stateField {
+  transition: opacity 0.25s;
+}
+#stateField.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Stat location pill */
+.stat-location {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+.stat-location:empty { display: none; }
+
+/* Location explainer banner */
+.location-explainer {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  color: #166534;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.location-explainer.tax-warning {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+.explainer-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
 /* Responsive */
 @media (max-width: 600px) {
   header h1 { font-size: 1.6rem; }
   .form-grid { grid-template-columns: 1fr; }
   .stat-cards { grid-template-columns: 1fr; }
+  .location-row { flex-direction: column; }
 }
