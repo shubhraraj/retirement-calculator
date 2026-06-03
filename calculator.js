@@ -64,6 +64,55 @@ function allSimpleInputsFilled() {
     getVal('monthlySavings') >= 0;
 }
 
+// ---- Location helpers ----
+
+function getSelectedCountryCode() {
+  return document.getElementById('countrySelect').value;
+}
+
+function getSelectedStateColIndex() {
+  const stateSelect = document.getElementById('stateSelect');
+  return stateSelect.options.length > 0
+    ? parseFloat(stateSelect.options[stateSelect.selectedIndex].dataset.col) || 1.0
+    : 1.0;
+}
+
+function getSelectedStateName() {
+  const stateSelect = document.getElementById('stateSelect');
+  return stateSelect.options.length > 0
+    ? stateSelect.options[stateSelect.selectedIndex].text
+    : '';
+}
+
+function populateStateDropdown(countryCode) {
+  const stateSelect = document.getElementById('stateSelect');
+  const stateField = document.getElementById('stateField');
+  const states = LOCATION_DATA.states[countryCode];
+
+  if (states) {
+    stateSelect.innerHTML = states
+      .map(s => `<option data-col="${s.colIndex}">${s.name}</option>`)
+      .join('');
+    stateField.classList.remove('hidden');
+  } else {
+    stateSelect.innerHTML = '';
+    stateField.classList.add('hidden');
+  }
+}
+
+function updateLocationExplainer(countryCode, stateName, stateColIndex) {
+  const explainer = document.getElementById('locationExplainer');
+  const icon = document.getElementById('explainerIcon');
+  const text = document.getElementById('explainerText');
+  const country = LOCATION_DATA.countries[countryCode];
+  const explainerFn = LOCATION_DATA.explainers[countryCode];
+
+  text.textContent = explainerFn(stateName, stateColIndex);
+  icon.textContent = country.taxesRetirement ? '⚠️' : '💡';
+  explainer.className = 'location-explainer' + (country.taxesRetirement ? ' tax-warning' : '');
+  explainer.removeAttribute('hidden');
+}
+
 // ---- Chart instance ----
 
 let chart = null;
@@ -142,12 +191,18 @@ function update() {
   const years = retirementAge - currentAge;
   const effectiveMonthly = monthlySavings * (1 + employerMatch / 100);
 
-  const target = calcRetirementTarget(annualIncome, withdrawalRate);
+  const baseTarget = calcRetirementTarget(annualIncome, withdrawalRate);
 
-  // Reduce target by PV of Social Security income stream
+  // Reduce base target by PV of Social Security income stream
   const ssAnnual = socialSecurity * 12;
   const ssCorpus = ssAnnual / (withdrawalRate / 100);
-  const adjustedTarget = Math.max(target - ssCorpus, 0);
+  const ssAdjustedTarget = Math.max(baseTarget - ssCorpus, 0);
+
+  // Apply location adjustment (COL, healthcare, tax)
+  const countryCode = getSelectedCountryCode();
+  const stateColIndex = getSelectedStateColIndex();
+  const stateName = getSelectedStateName();
+  const adjustedTarget = applyLocationAdjustment(ssAdjustedTarget, countryCode, stateColIndex);
 
   const projected = futureValue(currentSavings, effectiveMonthly, returnRate, years);
   const gap = calcMonthlyGap(adjustedTarget, projected, returnRate, years);
@@ -156,6 +211,14 @@ function update() {
   // Update stat cards
   document.getElementById('statTarget').textContent = formatCurrency(adjustedTarget);
   document.getElementById('statProjected').textContent = formatCurrency(projected);
+
+  // Update location pill
+  const country = LOCATION_DATA.countries[countryCode];
+  const locationLabel = stateName ? `📍 ${stateName}, ${country.name}` : `📍 ${country.name}`;
+  document.getElementById('statLocation').textContent = locationLabel;
+
+  // Update explainer
+  updateLocationExplainer(countryCode, stateName, stateColIndex);
 
   const gapCard = document.getElementById('gapCard');
   const gapEl = document.getElementById('statGap');
@@ -197,3 +260,13 @@ document.getElementById('advancedToggle').addEventListener('change', function ()
   });
   update();
 });
+
+document.getElementById('countrySelect').addEventListener('change', function () {
+  populateStateDropdown(this.value);
+  update();
+});
+
+document.getElementById('stateSelect').addEventListener('change', update);
+
+// Initialise state dropdown on page load
+populateStateDropdown('US');
